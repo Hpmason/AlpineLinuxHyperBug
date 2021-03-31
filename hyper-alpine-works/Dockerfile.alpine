@@ -1,0 +1,14 @@
+FROM rust:alpine AS builder
+ARG APP=hyper-alpine
+
+WORKDIR /usr/src/${APP}
+COPY . .
+RUN apk add alpine-sdk libressl-dev
+RUN cargo build --release
+RUN ls 
+
+FROM alpine 
+ARG APP=hyper-alpine
+RUN apk add ca-certificates
+COPY --from=builder /usr/src/${APP}/target/release/${APP} /usr/local/bin/${APP}
+CMD ["hyper-alpine"]

@@ -1,0 +1,13 @@
+FROM rust:alpine AS builder
+ARG APP=reqwest-alpine
+
+WORKDIR /usr/src/${APP}
+COPY . .
+RUN apk add alpine-sdk libressl-dev
+RUN cargo build --release
+
+FROM alpine 
+ARG APP=reqwest-alpine
+RUN apk add ca-certificates openssl
+COPY --from=builder /usr/src/${APP}/target/release/${APP} /usr/local/bin/${APP}
+CMD ["reqwest-alpine"]
